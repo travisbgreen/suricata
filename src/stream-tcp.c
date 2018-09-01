@@ -1068,6 +1068,16 @@ static int StreamTcpPacketStateNone(ThreadVars *tv, Packet *p,
             }
         }
 
+        if (TCP_HAS_TFO(p)) {
+            ssn->flags |= STREAMTCP_FLAG_TCP_FAST_OPEN;
+            if (p->payload_len) {
+                StreamTcpUpdateNextSeq(ssn, &ssn->client, (ssn->client.next_seq + p->payload_len));
+                SCLogNotice("ssn: %p (TFO) [len: %d] isn %u base_seq %u next_seq %u payload len %u",
+                        ssn, p->tcpvars.tfo.len, ssn->client.isn, ssn->client.base_seq, ssn->client.next_seq, p->payload_len);
+                StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn, &ssn->client, p, pq);
+            }
+        }
+
         SCLogDebug("ssn %p: ssn->client.isn %" PRIu32 ", "
                 "ssn->client.next_seq %" PRIu32 ", ssn->client.last_ack "
                 "%"PRIu32"", ssn, ssn->client.isn, ssn->client.next_seq,
