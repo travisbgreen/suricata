@@ -2601,10 +2601,8 @@ SURICATA_BUILD_CONF="Suricata Configuration:
 
   Rust support:                            ${enable_rust}
   Rust strict mode:                        ${enable_rust_strict}
-  Rust compiler path:                      ${RUSTC}
-  Rust compiler version:                   ${rust_compiler_version}
-  Cargo path:                              ${CARGO}
-  Cargo version:                           ${rust_cargo_version}
+  Rust compiler:                           ${rust_compiler_version}
+  Rust cargo:                              ${rust_cargo_version}
 
   Python support:                          ${enable_python}
   Python path:                             ${python_path}
