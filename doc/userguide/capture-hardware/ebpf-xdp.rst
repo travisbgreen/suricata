@@ -21,8 +21,8 @@ possible. So performance is better. But bypassed packets don't reach the network
 traffic but only on duplicated/sniffed traffic.
 
 The bypass implementation relies on one of the most powerful concept of eBPF: maps. A map is a data structure
-shared between user space and kernel space/hardware. It allows user space and kernel space to interact, pass
-information. Maps are often implemented as arrays or hash tables that can contain arbitrary key, value pairs.
+shared between user space and kernel space/hardware. It allow user space and kernel space to interact, pass
+information. Maps are often arrays or hash that can contain arbitrary key, value pairs.
 
 XDP
 ~~~
@@ -60,7 +60,7 @@ This guide has been confirmed on Debian/Ubuntu "LTS" Linux.
 Disable irqbalance
 ~~~~~~~~~~~~~~~~~~
 
-Irqbalance may cause issues in most setups described here, so it is recommended
+Irqbalance may cause issue in most setup described here, so it is recommended
 to deactivate it ::
 
  systemctl stop irqbalance
@@ -490,18 +490,18 @@ filter will switch to global bypass mode. Set key `0` to value `0` to send traff
 The switch must be activated on all sniffing interfaces. For an interface named `eth0` the global
 switch map will be `/sys/fs/bpf/suricata-eth0-global_bypass`.
 
-Pinned maps and eBPF filter
+Pinned maps and ebpf filter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Pinned maps can also be used with regular eBPF filters. The main difference is that the map will not
+Pinned maps can also be used with regular eBPF filter. The main difference is that the map will not
 persist after Suricata is stopped because it is attached to a socket and not an interface which
-is persistent.
+is persitent.
 
 The eBPF filter `filter.bpf` uses a `ipv4_drop` map that contains the set of IPv4 addresses to drop.
 If `pinned-maps` is set to `true` in the interface configuration then the map will be pinned
-under `/sys/fs/bpf/suricata-eth3-ipv4_drop`.
+under `/sys/fs/bpf/suricata-eth0-ipv4_drop`.
 
-You can then use a tool like `bpfctrl` to manage the IPv4 addresses in the map.
+You can then use a tool to manage the IPv4 addresses in the map.
 
 Hardware bypass with Netronome
 ------------------------------
