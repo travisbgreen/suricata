@@ -364,15 +364,15 @@ You will need Linux 4.15 or newer to use that feature.
 
 To do so set the `xdp-cpu-redirect` variable in af-packet interface configuration to a set of CPUs.
 Then use the `cluster_cpu` as load balancing function. You will also need to set the affinity
-to be certain that CPU cores that have the skb assigned are used by Suricata.
+to be sure CPU that will be assigned skb are used by Suricata.
 
 Also to avoid out of order packets, you need to set the RSS queue number to 1. So if our interface
 is `eth3` ::
 
   /sbin/ethtool -L eth3 combined 1
 
-In case your system has more then 64 core, you need to set `CPUMAP_MAX_CPUS` to a value greater
-than this number in `xdp_lb.c` and `xdp_filter.c`.
+In case your system has more then 64 core, you need to set `CPUMAP_MAX_CPUS` to a value superior
+to this number in `xdp_lb.c` and `xdp_filter.c`.
 
 A sample configuration for pure XDP load balancing could look like ::
 
@@ -381,7 +381,7 @@ A sample configuration for pure XDP load balancing could look like ::
     cluster-id: 97
     cluster-type: cluster_cpu
     xdp-mode: driver
-    xdp-filter-file:  /usr/libexec/suricata/ebpf/xdp_lb.bpf
+    xdp-filter-file:  /etc/suricata/ebpf/xdp_lb.bpf
     xdp-cpu-redirect: ["1-17"] # or ["all"] to load balance on all CPUs
     use-mmap: yes
     ring-size: 200000
