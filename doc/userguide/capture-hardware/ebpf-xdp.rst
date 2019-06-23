@@ -78,7 +78,7 @@ Make sure you have clang (>=3.9) installed on the system  ::
 
  sudo apt install clang
 
-Some i386 headers will also be needed as eBPF is not x86_64 and some included headers
+Some i386 headers will also be needed as eBPF is not x86_64 and some include headers
 are architecture specific ::
 
  sudo apt install libc6-dev-i386 --no-install-recommends
