@@ -1444,6 +1444,7 @@ void FTPAtExitPrintStats(void)
 }
 
 
+#ifdef HAVE_LIBJANSSON
 /*
  * \brief Returns the ending offset of the next line from a multi-line buffer.
  *
@@ -1459,16 +1460,15 @@ void FTPAtExitPrintStats(void)
  * next "line ends". The characters between the input buffer and this
  * value comprise the line.
  *
- * NULL is found first or a newline isn't found, then UINT16_MAX is returned.
+ * NULL is found first or a newline isn't found, then
  */
 uint16_t JsonGetNextLineFromBuffer(const char *buffer, const uint16_t len)
 {
-    if (!buffer || *buffer == '\0') {
-        return UINT16_MAX;
-    }
+        if (!buffer || *buffer == '\0')
+                    return UINT16_MAX;
 
-    char *c = strchr(buffer, '\n');
-    return c == NULL ? len : c - buffer + 1;
+            char *c = strchr(buffer, '\n');
+                return c == NULL ? len : c - buffer + 1;
 }
 
 json_t *JsonFTPDataAddMetadata(const Flow *f)
