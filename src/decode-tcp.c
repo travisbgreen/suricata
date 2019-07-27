@@ -180,6 +180,8 @@ static void DecodeTCPOptions(Packet *p, uint8_t *pkt, uint16_t pktlen)
                                 p->tcpvars.tfo.type = TCP_OPT_TFO; // treat as regular TFO
                             }
                         }
+                    } else {
+                        ENGINE_SET_EVENT(p,TCP_OPT_INVALID_LEN);
                     }
                     break;
             }

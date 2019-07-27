@@ -504,7 +504,7 @@ int StreamTcpReassembleDepthReached(Packet *p)
 /**
  *  \internal
  *  \brief Function to Check the reassembly depth valuer against the
- *        allowed max depth of the stream reassmbly for TCP streams.
+ *        allowed max depth of the stream reassembly for TCP streams.
  *
  *  \param stream stream direction
  *  \param seq sequence number where "size" starts
@@ -1213,7 +1213,8 @@ bool StreamReassembleRawHasDataReady(TcpSession *ssn, Packet *p)
                          STREAMTCP_STREAM_FLAG_DISABLE_RAW))
         return false;
 
-    if (StreamTcpInlineMode() == FALSE) {
+    /* XX */
+    if (0 || StreamTcpInlineMode() == FALSE) {
         if ((STREAM_RAW_PROGRESS(stream) == STREAM_BASE_OFFSET(stream) + stream->sb.buf_offset)) {
             return false;
         }
@@ -1221,6 +1222,11 @@ bool StreamReassembleRawHasDataReady(TcpSession *ssn, Packet *p)
             return true;
         }
     } else {
+        SCLogConfig("payload len %d, PKT_STREAM_ADD %s",
+                (int) p->payload_len, (p->flags & PKT_STREAM_ADD) ? "set" : "clear");
+#if 1
+        return true;
+#endif
         if (p->payload_len > 0 && (p->flags & PKT_STREAM_ADD)) {
             return true;
         }
@@ -1329,6 +1335,8 @@ static int StreamReassembleRawInline(TcpSession *ssn, const Packet *p,
     SCEnter();
     int r = 0;
 
+    SCLogConfig("Entering");
+
     TcpStream *stream;
     if (PKT_IS_TOSERVER(p)) {
         stream = &ssn->client;
@@ -1340,21 +1348,27 @@ static int StreamReassembleRawInline(TcpSession *ssn, const Packet *p,
             (stream->flags & STREAMTCP_STREAM_FLAG_NOREASSEMBLY))
     {
         *progress_out = STREAM_RAW_PROGRESS(stream);
+    SCLogConfig("Leaving [0]");
         return 0;
     }
+    SCLogConfig("Leaving [1]");
+        return 0;
 
     uint32_t chunk_size = PKT_IS_TOSERVER(p) ?
         stream_config.reassembly_toserver_chunk_size :
         stream_config.reassembly_toclient_chunk_size;
+#if 1
+    chunk_size = p->payload_len + (chunk_size / 3);
+    SCLogDebug("packet payload len %u, so chunk_size adjusted to %u",
+            p->payload_len, chunk_size);
+#else
     if (chunk_size <= p->payload_len) {
-        chunk_size = p->payload_len + (chunk_size / 3);
-        SCLogDebug("packet payload len %u, so chunk_size adjusted to %u",
-                p->payload_len, chunk_size);
     } else if (((chunk_size / 3 ) * 2) < p->payload_len) {
         chunk_size = p->payload_len + ((chunk_size / 3));
         SCLogDebug("packet payload len %u, so chunk_size adjusted to %u",
                 p->payload_len, chunk_size);
     }
+#endif
 
     uint64_t packet_leftedge_abs = STREAM_BASE_OFFSET(stream) + (TCP_GET_SEQ(p) - stream->base_seq);
     uint64_t packet_rightedge_abs = packet_leftedge_abs + p->payload_len;
@@ -1421,7 +1435,7 @@ static int StreamReassembleRawInline(TcpSession *ssn, const Packet *p,
                     // more trailing data than we need
 
                     if (before >= (chunk_size - p->payload_len) / 2) {
-                        // also more heading data, devide evenly
+                        // also more heading data, divide evenly
                         before = after = (chunk_size - p->payload_len) / 2;
                     } else {
                         // heading data is less than requested, give the
@@ -1483,6 +1497,7 @@ static int StreamReassembleRawInline(TcpSession *ssn, const Packet *p,
             *progress_out = STREAM_RAW_PROGRESS(stream);
         }
     }
+    SCLogConfig("Leaving [1]");
     return r;
 }
 
@@ -1640,8 +1655,9 @@ int StreamReassembleRaw(TcpSession *ssn, const Packet *p,
                         StreamReassembleRawFunc Callback, void *cb_data,
                         uint64_t *progress_out, bool respect_inspect_depth)
 {
-    /* handle inline seperately as the logic is very different */
-    if (StreamTcpInlineMode() == TRUE) {
+    /* handle inline separately as the logic is very different */
+    // XX
+    if (0 && StreamTcpInlineMode() == TRUE) {
         return StreamReassembleRawInline(ssn, p, Callback, cb_data, progress_out);
     }
 
