@@ -1444,7 +1444,6 @@ void FTPAtExitPrintStats(void)
 }
 
 
-#ifdef HAVE_LIBJANSSON
 /*
  * \brief Returns the ending offset of the next line from a multi-line buffer.
  *
@@ -1497,14 +1496,6 @@ json_t *JsonFTPDataAddMetadata(const Flow *f)
             break;
     }
     return ftpd;
-}
-
-/**
- * \brief Free memory allocated for global SMTP parser state.
- */
-void FTPParserCleanup(void)
-{
-    FTPFreeMpmState();
 }
 
 /* UNITTESTS */
