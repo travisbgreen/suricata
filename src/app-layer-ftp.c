@@ -474,12 +474,13 @@ static int FTPGetLine(FtpState *state)
  * \param thread context
  * \param input input line of the command
  * \param len of the command
+ * \param thread context
  * \param cmd_descriptor when the command has been parsed
  *
  * \retval 1 when the command is parsed, 0 otherwise
  */
-static int FTPParseRequestCommand(FTPThreadCtx *td,
-                                  const uint8_t *input, uint32_t input_len,
+static int FTPParseRequestCommand(uint8_t *input, uint32_t input_len,
+                                  FTPThreadCtx *td,
                                   const FtpCommand **cmd_descriptor)
 {
     SCEnter();
@@ -491,11 +492,11 @@ static int FTPParseRequestCommand(FTPThreadCtx *td,
                                             td->pmq, input, input_len);
     if (mpm_cnt) {
         *cmd_descriptor = &FtpCommands[td->pmq->rule_id_array[0]];
-        SCReturnInt(1);
+        SCReturn(1);
     }
 
     *cmd_descriptor = NULL;
-    SCReturnInt(0);
+    SCReturn(0);
 }
 
 struct FtpTransferCmd {
@@ -641,7 +642,7 @@ static int FTPParseRequest(Flow *f, void *ftp_state,
     while (FTPGetLine(state) >= 0) {
         const FtpCommand *cmd_descriptor;
 
-        if (!FTPParseRequestCommand(thread_data, state->current_line, state->current_line_len, &cmd_descriptor)) {
+        if (!FTPParseRequestCommand(state->current_line, state->current_line_len, thread_data, &cmd_descriptor)) {
             state->command = FTP_COMMAND_UNKNOWN;
             continue;
         }
@@ -1326,9 +1327,6 @@ static void FTPSetMpmState(void)
     uint32_t i = 0;
     for (i = 0; i < sizeof(FtpCommands)/sizeof(FtpCommand) - 1; i++) {
         const FtpCommand *cmd = &FtpCommands[i];
-        if (cmd->command_length == 0)
-            continue;
-
         MpmAddPatternCI(ftp_mpm_ctx,
                        (uint8_t *)cmd->command_name,
                        cmd->command_length,
@@ -1496,6 +1494,14 @@ json_t *JsonFTPDataAddMetadata(const Flow *f)
             break;
     }
     return ftpd;
+}
+
+/**
+ * \brief Free memory allocated for global SMTP parser state.
+ */
+void FTPParserCleanup(void)
+{
+    FTPFreeMpmState();
 }
 
 /* UNITTESTS */
