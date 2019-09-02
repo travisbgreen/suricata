@@ -479,7 +479,7 @@ static int FTPGetLine(FtpState *state)
  * \retval 1 when the command is parsed, 0 otherwise
  */
 static int FTPParseRequestCommand(FTPThreadCtx *td,
-                                  uint8_t *input, uint32_t input_len,
+                                  const uint8_t *input, uint32_t input_len,
                                   const FtpCommand **cmd_descriptor)
 {
     SCEnter();
